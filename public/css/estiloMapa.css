@@ -1,0 +1,39 @@
+.sinArrastrar{
+	width: 100%;
+	height: 100%;
+	user-drag: none; 
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+#superposicion{
+	max-height:100%;
+	max-width: 100%;
+}
+img[src = "http://localhost/laravel-apps/calidadAire/public/img/marcador.png"]{
+	width: 14px;
+	height: 15px;
+	position: absolute;
+	top:0%; 
+	left:0%; 
+	border:none;
+
+}
+.hola{
+	width: 267px;
+	height: 105px;
+	position: absolute;
+	top:0%; 
+	left:0%; 
+	border:none;
+
+}
+img[src = "http://localhost/laravel-apps/calidadAire/public/img/marcador.png"]:hover{
+	-webkit-cursor: pointer;
+   	-o-border-cursor: pointer;
+   	-moz-cursor: pointer;
+   	cursor: pointer;
+}
+/*-----------------------------------------------*/
