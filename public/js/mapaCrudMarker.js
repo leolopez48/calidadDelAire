@@ -20,66 +20,66 @@ var posision_top = new Array();/*posision en top*/
 $(document).ready(function(){
     cargarMarker($("#superposicion"));
     $("#nuevo", parent.document).on('click',function(){
-        $("img[src='https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg']").each(function(index) {
+        $("img[src='../../../img/marcador.png']").each(function(index) {
             $(this).remove();
         });
-        $("#superposicion").append('<img id="default" src="https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg" />');
+        $("#superposicion").append('<img id="default" src="../../../img/marcador.png"/>');
         $("#default").css({"top":"50%","left":"50%"});
         mover("default");       
     }); 
-    $("#agregar", parent.document).on('click',function(){
-        let to = calcuTop($("#default"));
-        let le = calcuLeft($("#default"));
-        let des = $("#descripcion",parent.document).val();
-        let nom = $("#nombre",parent.document).val();
-        let esta = $("#estacion",parent.document).val();
+    // $("#agregar", parent.document).on('click',function(){
+    //     let to = calcuTop($("#default"));
+    //     let le = calcuLeft($("#default"));
+    //     let des = $("#descripcion",parent.document).val();
+    //     let nom = $("#nombre",parent.document).val();
+    //     let esta = $("#estacion",parent.document).val();
 
-        $.ajax({
-            url: '{{ asset('controller/crudMarker.php') }}',
-            type: 'post',
-            data: {
-                agregar : 'true',
-                descipcion: des,
-                nombre: nom,
-                posLeft: le,
-                posTop: to,
-                estacion: esta
-            }
-        })
-        .done(function(data) {
-            // if(data=="BIEN"){
-            //     $("#opcion",parent.document).val('1');
-            // }
-            cargarMarker($("#superposicion"));
-        }).fail(function(data){
-            cargarMarker($("#superposicion"));
-        });
-        $("#default").remove();
-        cargarMarker($("#superposicion"));
-    });
-    $("#eliminar", parent.document).on('click',function(){
-        $.ajax({
-            url: '{{ asset('controller/crudMarker.php') }}',
-            type: 'post',
-            data: {
-                eliminar : 'true',
-                id : idPulsado
-            }
-        })
-        .done(function(data) {
-            // if(data=="BIEN"){
-            //     $("#opcion",parent.document).val('1');
-            // }
-            cargarMarker($("#superposicion"));
-        }).fail(function(data){
-            cargarMarker($("#superposicion"));
-        });
-        cargarMarker($("#superposicion"));
+    //     $.ajax({
+    //         url: '{{ asset('controller/crudMarker.php') }}',
+    //         type: 'post',
+    //         data: {
+    //             agregar : 'true',
+    //             descipcion: des,
+    //             nombre: nom,
+    //             posLeft: le,
+    //             posTop: to,
+    //             estacion: esta
+    //         }
+    //     })
+    //     .done(function(data) {
+    //         // if(data=="BIEN"){
+    //         //     $("#opcion",parent.document).val('1');
+    //         // }
+    //         cargarMarker($("#superposicion"));
+    //     }).fail(function(data){
+    //         cargarMarker($("#superposicion"));
+    //     });
+    //     $("#default").remove();
+    //     cargarMarker($("#superposicion"));
+    // });
+    // $("#eliminar", parent.document).on('click',function(){
+    //     $.ajax({
+    //         url: '{{ asset('controller/crudMarker.php') }}',
+    //         type: 'post',
+    //         data: {
+    //             eliminar : 'true',
+    //             id : idPulsado
+    //         }
+    //     })
+    //     .done(function(data) {
+    //         // if(data=="BIEN"){
+    //         //     $("#opcion",parent.document).val('1');
+    //         // }
+    //         cargarMarker($("#superposicion"));
+    //     }).fail(function(data){
+    //         cargarMarker($("#superposicion"));
+    //     });
+    //     cargarMarker($("#superposicion"));
         
-    });
-    $("#modificar", parent.document).on('click',function(){
-        cargarMarker($("#superposicion"));
-    });
+    // });
+    // $("#modificar", parent.document).on('click',function(){
+    //     cargarMarker($("#superposicion"));
+    // });
     $("#cancelar", parent.document).on('click',function(){
         $("#agregar", parent.document).attr('disabled',true);
         $("#modificar", parent.document).attr('disabled',true);
@@ -205,54 +205,55 @@ let mover=(valor)=>{
 }
 
 let cargarMarker=(div)=>{
-    $.ajax({
-        url: '{{ asset('controller/Marker.php') }}',
-        type: 'post',
-        dataType: 'json'
-    })
-    .done(function(data) {
-        limpiarArray();
-        for (var i = 0; i < data.length; i++) {
-            id.push(data[i]['id']);
-            estacion.push(data[i]['estacion']);
-            posision_left.push(data[i]['posLeft']);
-            posision_top.push(data[i]['posTop']);
-            nombres.push(data[i]['nombre']);
-            descripcion.push(data[i]['descripcion']);
-        }
-        /*----genera los marker----*/
-        /*elimina los marker si ya existen*/
-        $("img[src='https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg']").each(function(index) {
-            $(this).remove();
-        });
-        /*crea los marker*/
-        for(let j=0;j<posision_top.length;j++){
-            div.append('<img class="sinArrastrar" id="'+id[j]+'" src="https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg" />');
-            $("#"+id[j]).css({'top':posision_top[j],'left':posision_left[j]});
-        }
-        /*efecto imagen blanco y negro al pulsar un marker*/
-        $("img[src='https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg']").each(function(index) {
-            $(this).on('mousedown', function() {
-                idPulsado = id[index];
-                mover($(this).attr('id'));
-                $("#estacion", window.parent.document).val(estacion[index]);
-                $("#nombre", parent.document).val(nombres[index]);
-                $("#descripcion", parent.document).val(descripcion[index]);
-                for(let j=0;j<id.length;j++){
-                    if(id[j] != this.id){
-                        $("#"+id[j]).css({'-webkit-filter':'grayscale(100%)','filter':'grayscale(100%)'});
-                    }else{
-                        $("#"+id[j]).css({'-webkit-filter':'grayscale(0%)','filter':'grayscale(0%)'});
-                    }
-                }
-                $("#modificar", parent.document).attr('disabled',false);
-                $("#eliminar", parent.document).attr('disabled',false);
-                $("#cancelar", parent.document).attr('disabled',false);
-            });
-        });
-        /*----fin generar marker----*/
-    })
-    .fail(function(data) {
-        alert('A ocurrido un error');
-    });
+    alert('datos cargados')
+    // $.ajax({
+    //     url: '{{ asset('controller/Marker.php') }}',
+    //     type: 'post',
+    //     dataType: 'json'
+    // })
+    // .done(function(data) {
+    //     limpiarArray();
+    //     for (var i = 0; i < data.length; i++) {
+    //         id.push(data[i]['id']);
+    //         estacion.push(data[i]['estacion']);
+    //         posision_left.push(data[i]['posLeft']);
+    //         posision_top.push(data[i]['posTop']);
+    //         nombres.push(data[i]['nombre']);
+    //         descripcion.push(data[i]['descripcion']);
+    //     }
+    //     /*----genera los marker----*/
+    //     /*elimina los marker si ya existen*/
+    //     $("img[src='https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg']").each(function(index) {
+    //         $(this).remove();
+    //     });
+    //     /*crea los marker*/
+    //     for(let j=0;j<posision_top.length;j++){
+    //         div.append('<img class="sinArrastrar" id="'+id[j]+'" src="https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg" />');
+    //         $("#"+id[j]).css({'top':posision_top[j],'left':posision_left[j]});
+    //     }
+    //     /*efecto imagen blanco y negro al pulsar un marker*/
+    //     $("img[src='https://img2.freepng.es/20180528/gqu/kisspng-map-drawing-pin-clip-art-map-marker-5b0bc686c0b341.9842144315274983747893.jpg']").each(function(index) {
+    //         $(this).on('mousedown', function() {
+    //             idPulsado = id[index];
+    //             mover($(this).attr('id'));
+    //             $("#estacion", window.parent.document).val(estacion[index]);
+    //             $("#nombre", parent.document).val(nombres[index]);
+    //             $("#descripcion", parent.document).val(descripcion[index]);
+    //             for(let j=0;j<id.length;j++){
+    //                 if(id[j] != this.id){
+    //                     $("#"+id[j]).css({'-webkit-filter':'grayscale(100%)','filter':'grayscale(100%)'});
+    //                 }else{
+    //                     $("#"+id[j]).css({'-webkit-filter':'grayscale(0%)','filter':'grayscale(0%)'});
+    //                 }
+    //             }
+    //             $("#modificar", parent.document).attr('disabled',false);
+    //             $("#eliminar", parent.document).attr('disabled',false);
+    //             $("#cancelar", parent.document).attr('disabled',false);
+    //         });
+    //     });
+    //     /*----fin generar marker----*/
+    // })
+    // .fail(function(data) {
+    //     alert('A ocurrido un error');
+    // });
 }

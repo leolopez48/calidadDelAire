@@ -12,7 +12,7 @@
 	max-height:100%;
 	max-width: 100%;
 }
-img[src = "http://localhost/laravel-apps/calidadAire/public/img/marcador.png"]{
+img[src = "../../../img/marcador.png"]{
 	width: 14px;
 	height: 15px;
 	position: absolute;
@@ -30,7 +30,7 @@ img[src = "http://localhost/laravel-apps/calidadAire/public/img/marcador.png"]{
 	border:none;
 
 }
-img[src = "http://localhost/laravel-apps/calidadAire/public/img/marcador.png"]:hover{
+img[src = "../../../img/marcador.png"]:hover{
 	-webkit-cursor: pointer;
    	-o-border-cursor: pointer;
    	-moz-cursor: pointer;
