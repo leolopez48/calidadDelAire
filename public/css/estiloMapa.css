@@ -13,8 +13,8 @@
 	max-width: 100%;
 }
 img[src = "../../../img/marcador.png"]{
-	width: 14px;
-	height: 15px;
+	width: 30px;
+	height: 40px;
 	position: absolute;
 	top:0%; 
 	left:0%; 

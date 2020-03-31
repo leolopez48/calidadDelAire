@@ -8,6 +8,7 @@ var estacion = new Array();
 var direccion = new Array();
 var municipio = new Array();
 var departamento = new Array();
+var img = new Array();
 var nombres = new Array();
 var id = new Array();/*ids de los marquer*/
 var posision_left = new Array();/*posision en left*/
@@ -25,19 +26,23 @@ let mostrar=()=>{
 		dataType: 'json'
 	})
 	.done(function(data) {
-		console.log(data);
-		for (var i = 0; i < data.length; i++) {
-			id.push(data[i]['correlativo']);
-			estacion.push(data[i]['correlativo']);
-			posision_left.push(data[i]['posision_mapa_left']);
-			posision_top.push(data[i]['posision_mapa_top']);
-			municipio.push(data[i]['municipio']);
-			departamento.push(data[i]['departamento']);
-			direccion.push(data[i]['direccion']);
+		if(data.length>0){
+			for (var i = 0; i < data.length; i++) {
+				id.push(data[i]['_id']);
+				estacion.push(data[i]['correlativo']);
+				posision_left.push(data[i]['posision_mapa_left']);
+				posision_top.push(data[i]['posision_mapa_top']);
+				municipio.push(data[i]['municipio']);
+				departamento.push(data[i]['departamento']);
+				direccion.push(data[i]['direccion']);
+				img.push(data[i]['txt_img']);
+			}
+			cargarMarker($("#superposicion"));
+			// rebote();
+		 //    setInterval("rebote()",1301);/*función para hacer bucle infinito de la animación*/
+		}else{
+			window.parent.mapaMarkers = true;
 		}
-		cargarMarker($("#superposicion"));
-		// rebote();
-	 //    setInterval("rebote()",1301);/*función para hacer bucle infinito de la animación*/
 		
 	})
 	.fail(function(data) {
@@ -73,20 +78,26 @@ function getRandomInt(min, max) {
 
 // -----------------
 let cargarMarker=(div)=>{
+	let posisionToltip = "right";
     $("img[src='../img/marcador.png']").each(function(index) {
         $(this).remove();
     });
-    for(let j=0;j<posision_top.length;j++){
-    let title = "<div class='border-1'><i><u>"+departamento[j]+"</u></i></div><div class='border-1'><i>"+municipio[j]+"</i></div>"+direccion[j];
-
-        div.append('<img data-placement="right" data-toggle="tooltip" data-html="true" title="'+title
+    //console.log(id)
+    for(let j=0 ; j < posision_top.length; j++){
+	    let title = "<img width='100%' height='90px' src='../../../storage/"+img[j]+"'><div class='border-1'>Departamento: <i><u>"+departamento[j]+"</u></i></div><div class='border-1'>Municipio: <i>"+municipio[j]+"</i></div>Dirección: "+direccion[j];
+	    if(parseInt(posision_left[j].substring(0, posision_left[j].length-2))>50){
+	    	posisionToltip = "left";
+	    }
+        div.append('<img data-placement="'+posisionToltip+'" data-toggle="tooltip" data-html="true" title="'+title
         	+'" class="sinArrastrar" id="'+id[j]+'" src="../../../img/marcador.png" />');
         $("#"+id[j]).css({'top':posision_top[j],'left':posision_left[j]});
         
-        // $("#"+id[j]).on('click', function(event) {
-        // 	window.parent.correlativo = id[j];
-        // 	window.parent.crearGrafica;
-        // });
+        $("#"+id[j]).on('click', function(event) {
+        	if(window.parent.correlativo!=id[j]){
+	        	window.parent.correlativo = id[j];
+	        	window.parent.actualizar = true;
+        	}
+        });
     }
     $('[data-toggle="tooltip"]').tooltip();
 }

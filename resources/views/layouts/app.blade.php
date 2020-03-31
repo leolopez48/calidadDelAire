@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -10,16 +10,17 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
+    <script src="{{ asset('js/app.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/librerias/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/librerias/sweetalert2.all.min.js') }}"></script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    {{-- <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"> --}}
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
+<body>   
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
             <div class="container">
@@ -38,14 +39,20 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                                <a class="nav-link navbar-brand" href="{{ url('inicio') }}">Inicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link navbar-brand" href="{{ url('nosotros') }}">Nosotros</a>
+                            </li>
                         <!-- Authentication Links -->
                         @guest
                             <li class="nav-item">
-                                <a class="nav-link navbar-brand" style="color: #FFF" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                <a class="nav-link navbar-brand" href="{{ route('login') }}">{{ __('Iniciar Sesión') }}</a>
                             </li>
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Registrarse') }}</a>
                                 </li>
                             @endif
                         @else
@@ -75,9 +82,9 @@
         <main class="py-4">
             @yield('content')
         </main>
-    </div>
-            <div align="center" class="card-footer" style="height: 135px;">
-            <ul>Copyright &#169 2019 Ministerio de Medio Ambiente. Todos los derechos reservados.</ul>
+                <div align="center" class="card-footer" style="height: 125px;">
+            <ul>Copyright &#169 2019 MARN | ITCA-FEPADE. Todos los derechos reservados.</ul>
         </div>
+    </div>
 </body>
 </html>

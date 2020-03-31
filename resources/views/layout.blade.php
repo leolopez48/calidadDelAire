@@ -19,11 +19,12 @@
     <body>
         <div align="center" class="navbar navbar-dark bg-dark">
             <a style="padding-left: 45%; padding-top: 0.5%; color: #FFF" href="{{ url('/')}}"><ul class="view overlay text-center" style=" color: #FFF">Calidad del aire</ul></a>
+            
         </div>
         @yield('content')
         
         <div align="center" class="card-footer" style="height: 135px;">
-            <ul>Copyright &#169 2019 Ministerio de Medio Ambiente. Todos los derechos reservados.</ul>
+            <ul>Copyright &#169 2019 MARN | ITCA-FEPADE. Todos los derechos reservados.</ul>
         </div>
     </body>
 </html> 

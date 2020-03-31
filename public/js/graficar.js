@@ -1,7 +1,51 @@
-var  correlativo = 1;
+var  correlativo = "";
+var actualizar = false;
+var mapaMarkers = false;
+var fechaIni = "";
+var fechaFin = "";
 $(document).ready(function() {
 	crearGrafica();	
+	setInterval("Actualizar()", 1000);
+	$("#datosNacionales").on('click', function(event) {
+		if(correlativo!=''){
+			correlativo = "";
+			actualizar = true;
+		}
+	});
+	$("#limpiar").on('click', function(event) {
+		if($("#fechaIni").val()!='' && $("#fechaFin").val()!=''){
+			fechaIni = "";
+			fechaFin = "";
+			$("#fechaIni").val('');
+			$("#fechaFin").val('');
+			actualizar = true;
+		}
+		
+	});
+	$("#filtrar").on('click', function(event) {
+		if( $("#fechaIni").val() != '' && $("#fechaFin").val() != '' ){
+			var f1 = Date.parse( $("#fechaIni").val() );
+			var f2 = Date.parse( $("#fechaFin").val() );
+			var fechaAhora = new Date();
+			if(f1 < f2 && fechaAhora>=f1){
+					actualizar = true;
+			}else{
+				Swal.fire('¡Error!','Verifique las fechas del filtro ingresadas.','error');
+			}
+		}
+	});
 });
+
+let Actualizar=()=>{
+	if(actualizar){
+		crearGrafica();
+		actualizar = false;
+	}
+	if(mapaMarkers){
+		Swal.fire('Mensaje','No se encontraron estaciones','warning');
+		mapaMarkers = false;
+	}
+}
 let graficar=(id,titulo,subtitulo,titulo_eje_y,nombre,datos,categorias,colorGraf)=>{
 	Highcharts.chart(id, {
 	    chart: {
@@ -57,60 +101,99 @@ let calcuPromedio=(vector)=>{
 	return suma/total;
 }
 let crearGrafica=()=>{
+	fechaIni = $("#fechaIni").val();
+	fechaFin = $("#fechaFin").val();
 	$.ajax({
+		beforeSend: function(){
+			$("#cargando").show();
+			$('body').css({'overflow':'hidden'});
+		},
 		url: '../../../registros',
 		type: 'post',
 		dataType: "json",
 		data:{
 			_token: $("input[type='hidden']").val(),
-			correlativo : correlativo
+			id : correlativo,
+			fechaIni: fechaIni,
+			fechaFin: fechaFin
 		}
 	})
-	.done(function(data) {
-			var categoria = new Array();
-			var matriz=new Array();
-			var matriz2=new Array();
-			var matriz3=new Array();
-			var subtitulo = '';
-			var datos = JSON.stringify(data);
-			// console.log(data[0]['registros'][0]['fecha_hora']);
-			for (var i = 0; i < data[0]['registros'].length; i++) {
-				categoria.push(data[0]['registros'][i]['fecha_hora']);
-				matriz.push(parseFloat(data[0]['registros'][i]['pm25']));
-				matriz2.push(parseFloat(data[0]['registros'][i]['pm10']));
-				matriz3.push(parseFloat(data[0]['registros'][i]['temp']));
+	.done(function(data) {		
+		$('body').css({'overflow':'auto'});
+		$("#cargando").hide();
+		//console.log(data[0]);
+		try {
+			
+			if(data[0]['registros'].length>0){
 
-				$("#data tbody").append("<tr>"+
-					"<td>"+(i+1)+"</td>"+
-					"<td>"+data[0]['registros'][i]['fecha_hora']+"</td>"+
-					"<td>"+data[0]['registros'][i]['pm25']+"</td>"+
-					"<td>"+data[0]['registros'][i]['pm10']+"</td>"+
-					"<td>"+data[0]['registros'][i]['temp']+"</td>"+
-					"</tr>");
+				var categoria = new Array();
+				var matriz=new Array();
+				var matriz2=new Array();
+				var matriz3=new Array();
+				var subtitulo = '';
+				
+				$("table tbody tr").remove();
+				for (var i = 0; i < data[0]['registros'].length; i++) {
+					categoria.push(data[0]['registros'][i]['fecha_hora']);
+					matriz.push(parseFloat(data[0]['registros'][i]['pm25']));
+					matriz2.push(parseFloat(data[0]['registros'][i]['pm10']));
+					matriz3.push(parseFloat(data[0]['registros'][i]['temp']));
+					$("#data tbody").append("<tr>"+
+						"<td>"+(i+1)+"</td>"+
+						"<td>"+data[0]['registros'][i]['fecha_hora']+"</td>"+
+						"<td>"+data[0]['registros'][i]['pm25']+"</td>"+
+						"<td>"+data[0]['registros'][i]['pm10']+"</td>"+
+						"<td>"+data[0]['registros'][i]['temp']+"</td>"+
+						"</tr>");
+				}
+				$("#dataUltimo tbody").append("<tr>"+
+						"<td>"+data[0]['registros'][data[0]['registros'].length-1]['fecha_hora']+"</td>"+
+						"<td>"+data[0]['registros'][data[0]['registros'].length-1]['pm25']+"</td>"+
+						"<td>"+data[0]['registros'][data[0]['registros'].length-1]['pm10']+"</td>"+
+						"<td>"+data[0]['registros'][data[0]['registros'].length-1]['temp']+"</td>"+
+						"<td style='background-color:"+UCCAPM2_5(data[0]['registros'][data[0]['registros'].length-1]['pm25'])+";'></td>"+
+						"</tr>");
+
+				$("#departamento").text(data[0]['departamento']);
+				$("#municipio").text(data[0]['municipio']);
+				$("#direccion").text(data[0]['direccion']);
+				$("#img_mostrar").attr('src','../../../storage/'+data[0]['txt_img']);
+				$("#img_mostrar").removeClass('d-none');
+				
+				if(data[0]['correlativo'] ==' '){
+					$("#tituloDePg").text('Datos promedio a nivel nacional');
+					$("#totalEstaciones").text(data[0]['municipio']);
+					$("#txtDatosNacionales").removeClass('d-none');
+					$("#datosPorEstacion").addClass('d-none');
+					var fechaI = data[0]['registros'][0]['fecha_hora'].substring(0, 10);
+					var fechaF = data[0]['registros'][ data[0]['registros'].length-1 ]['fecha_hora'].substring(0, 10);
+					graficar("grafico1","Gráfica de material particulado PM 2.5 ug/m3","del "+fechaI+" al "+fechaF,"PM 2.5 ug/m3","ESTACIONES EN EL SALVADOR",matriz,categoria,'#33D3E9');
+					graficar("grafico2","Gráfica de material particulado PM 10 ug/m3","del "+fechaI+" al "+fechaF,"PM 10 ug/m3","ESTACIONES EN EL SALVADOR ",matriz2,categoria,'#3647EC');
+					graficar("grafico3","Gráfica de material particulado TEMPERATURA ºC","del "+fechaI+" al "+fechaF,"Temp ºC","ESTACIONES EN EL SALVADOR ",matriz3,categoria,'#5D36EC');
+
+				}else{
+					$("#tituloDePg").text('Datos del departamento "'+data[0]['departamento']+'", municipio "'+data[0]['municipio']+'"');
+					$("#txtDatosNacionales").addClass('d-none');
+					$("#datosPorEstacion").removeClass('d-none');
+					var fechaI = data[0]['registros'][0]['fecha_hora'].substring(0, 10);
+					var fechaF = data[0]['registros'][ data[0]['registros'].length-1 ]['fecha_hora'].substring(0, 10);
+					graficar("grafico1","Gráfica de material particulado PM 2.5 ug/m3","del "+fechaI+" al "+fechaF,"PM 2.5 ug/m3","Estación "+data[0]['correlativo']+' '+data[0]['municipio']+' '+ data[0]['direccion'],matriz,categoria,'#33D3E9');
+					graficar("grafico2","Gráfica de material particulado PM 10 ug/m3","del "+fechaI+" al "+fechaF,"PM 10 ug/m3","Estación "+data[0]['correlativo']+' '+data[0]['municipio']+' '+ data[0]['direccion'],matriz2,categoria,'#3647EC');
+					graficar("grafico3","Gráfica de material particulado TEMPERATURA ºC","del "+fechaI+" al "+fechaF,"Temp ºC","Estación "+data[0]['correlativo']+' '+data[0]['municipio']+' '+ data[0]['direccion'],matriz3,categoria,'#5D36EC');
+					
+				}
+
+			}else{
+				Swal.fire('Mensaje','No se encontraron datos en la estación','warning');
 			}
-			$("#dataUltimo tbody").append("<tr>"+
-					"<td>"+data[0]['registros'][data[0]['registros'].length-1]['fecha_hora']+"</td>"+
-					"<td>"+data[0]['registros'][data[0]['registros'].length-1]['pm25']+"</td>"+
-					"<td>"+data[0]['registros'][data[0]['registros'].length-1]['pm10']+"</td>"+
-					"<td>"+data[0]['registros'][data[0]['registros'].length-1]['temp']+"</td>"+
-					"<td style='background-color:"+UCCAPM2_5(data[0]['registros'][data[0]['registros'].length-1]['pm25'])+";'></td>"+
-					"</tr>");
-
-			$("#departamento").text(data[0]['departamento']);
-			$("#municipio").text(data[0]['municipio']);
-			$("#direccion").text(data[0]['direccion']);
-
-			graficar("grafico1","PM 2.5 ug/m3",subtitulo,"PM 2.5 ug/m3","ESTACION 1",matriz,categoria,'#33D3E9');
-			graficar("grafico2","PM 10 ug/m3",subtitulo,"PM 10 ug/m3","ESTACION 1",matriz2,categoria,'#3647EC');
-			graficar("grafico3","TEMPERATURA ºC",subtitulo,"Temp ºC","ESTACION 1",matriz3,categoria,'#5D36EC');
-
-
+		} catch(e) {
+			Swal.fire('Mensaje','No se encontraron datos','warning');
+		}
 	})
 	.fail(function() {
-		console.log("error");
-	})
-	.always(function() {
-		console.log("complete");
+		$('body').css({'overflow':'auto'});
+		$("#cargando").hide();
+		Swal.fire('Mensaje','error al cargar los datos','warning');
 	});
 	
 }
@@ -138,4 +221,39 @@ let UCCAPM2_5=(valor)=>{
 	}
 }
 
+$(".proyecciones").on("click", function(){
+
+    var ini = $("#fechaIni").val();
+    var fin = $("#fechaFin").val();
+    var id = correlativo;
+    if(ini =="" || fin == "" || id==""){
+	$.ajax({
+		url: 'id',
+		type: 'get',
+		dataType: "json"
+	})
+	.done(function(data) {		
+		console.log(data);
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+		ini = 2019 + '-' + 11 + '-' + (dd-1);
+		fin = yyyy + '-' + mm + '-' + dd;
+		for(let i=0; i<data.length; i++){
+			console.log(data[0]['_id']['$oid']);
+			var txt = '{"id":'+data[i]['_id']['$oid']+', "fechaIni":'+ini+', "fechaFin":'+fin+'}';
+			window.open("csv/"+data[i]['_id']['$oid']+'/'+ini + "/"+fin,"_self");	
+		}
+	})
+	.fail(function() {
+		Swal.fire('Mensaje','error al cargar los datos','warning');
+	});
+    }else{
+    	var txt = '{"id":'+id+', "fechaIni":'+ini+', "fechaFin":'+fin+'}';
+    var obj = jQuery.parseJSON(txt);
+	console.log(txt);
+    	window.open("proyecciones/"+ini + "/"+fin,"_self");
+    }
+});
 		
